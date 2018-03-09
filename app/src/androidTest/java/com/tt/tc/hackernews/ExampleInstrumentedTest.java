@@ -10,6 +10,9 @@ import android.support.test.rule.ActivityTestRule;
 import android.support.test.runner.AndroidJUnit4;
 import android.support.v7.widget.RecyclerView;
 
+import com.tt.tc.hackernews.adapter.CommentsAdapter;
+import com.tt.tc.hackernews.model.Comment;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -74,15 +77,23 @@ public class ExampleInstrumentedTest{
         loadingIdlingStories.setRecyclerView(recyclerView, 10);
         Espresso.registerIdlingResources(loadingIdlingStories);
         Espresso.onView(withId(R.id.rvList))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(2, click()));
+                .perform(RecyclerViewActions.actionOnItemAtPosition(1, click()));
         Espresso.unregisterIdlingResources(loadingIdlingStories);
 
-
         recyclerView = (RecyclerView) activityTestRule.getActivity().findViewById(R.id.rvCommentList);
-        loadingIdlingComments.setRecyclerView(recyclerView, 2);
+        loadingIdlingComments.setRecyclerView(recyclerView, 1);
         Espresso.registerIdlingResources(loadingIdlingComments);
-        Espresso.onView(withId(R.id.rvCommentList))
-                .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+
+        CommentsAdapter commentsAdapter = (CommentsAdapter) recyclerView.getAdapter();
+        for (int i = 0; i < commentsAdapter.getItemCount(); i++){
+            Comment comment = commentsAdapter.getItems(i);
+            if (comment.getChilds() != null && comment.getChilds().size() > 0){
+                Espresso.onView(withId(R.id.rvCommentList))
+                        .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
+                break;
+            }
+        }
+
         Espresso.unregisterIdlingResources(loadingIdlingComments);
     }
 

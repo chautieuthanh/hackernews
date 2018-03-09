@@ -68,6 +68,7 @@ public class CommentsFragment extends Fragment implements
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
         commentsAdapter = new CommentsAdapter(this);
+        commentLoaderService.setCommentsAdapter(commentsAdapter);
         mRecyclerView.setAdapter(commentsAdapter);
         swipeRefresh.setOnRefreshListener(this);
         commentsAdapter.enableLoadMore(mRecyclerView);
@@ -85,9 +86,9 @@ public class CommentsFragment extends Fragment implements
         super.onStart();
         Log.i("HackerNews", this + " is started.");
         if(lastVisibleItem > 0){
-            commentLoaderService.loadComments(commentsAdapter, false, lastVisibleItem);
+            commentLoaderService.loadComments(false, lastVisibleItem);
         } else {
-            commentLoaderService.loadComments(commentsAdapter, false, LIMIT);
+            commentLoaderService.loadComments(false, LIMIT);
         }
     }
 
@@ -95,9 +96,12 @@ public class CommentsFragment extends Fragment implements
     public void onResume() {
         super.onResume();
         Log.i("HackerNews", this + " is resumed.");
-        new Handler().postDelayed(()->{
-            if (firstVisibleItem != -1){
-                mLayoutManager.scrollToPositionWithOffset(firstVisibleItem, 2);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (firstVisibleItem != -1){
+                    mLayoutManager.scrollToPositionWithOffset(firstVisibleItem, 2);
+                }
             }
         }, 500);
     }
@@ -125,7 +129,7 @@ public class CommentsFragment extends Fragment implements
     @Override
     public void onRefresh() {
         swipeRefresh.setRefreshing(false);
-        commentLoaderService.loadComments(commentsAdapter, true, LIMIT);
+        commentLoaderService.loadComments(true, LIMIT);
     }
 
     @Override
@@ -134,7 +138,7 @@ public class CommentsFragment extends Fragment implements
         if (commentLoaderService == null){
             commentsAdapter.setMoreLoading(false);
         } else {
-            commentLoaderService.loadMoreComment(commentsAdapter, commentsAdapter.getItemCount(), LIMIT);
+            commentLoaderService.loadMoreComment(commentsAdapter.getItemCount(), LIMIT);
         }
     }
 

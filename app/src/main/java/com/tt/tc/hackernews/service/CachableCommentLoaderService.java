@@ -10,6 +10,9 @@ import java.util.Map;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Predicate;
 
 /**
  * Created by smu (Chau) on 6/3/18.
@@ -37,8 +40,11 @@ public class CachableCommentLoaderService {
     public Observable<Comment> getItem(Long itemId, boolean refresh) {
         Observable<Comment> networkItem = commentLoader
                 .getItem(itemId)
-                .doOnNext(item -> {
-                    cachedItems.put(itemId, item); // Save to cache
+                .doOnNext(new Consumer<Comment>() {
+                    @Override
+                    public void accept(@NonNull Comment item) throws Exception {
+                        cachedItems.put(item.getId(), item); // Save to cache
+                    }
                 });
 
         if (refresh) {
@@ -48,7 +54,12 @@ public class CachableCommentLoaderService {
         Observable<Comment> cachedItem = getCachedItem(itemId);
         return Observable
                 .concat(cachedItem, networkItem)
-                .filter(item -> item.isUpdated(CACHED_TIME))
+                .filter(new Predicate<Comment>() {
+                    @Override
+                    public boolean test(@NonNull Comment item) throws Exception {
+                        return item.isUpdated(CACHED_TIME);
+                    }
+                })
                 .onErrorReturnItem(Comment.NULL_ITEM)
                 .take(1);
     }

@@ -68,6 +68,7 @@ public class StoriesFragment extends Fragment
         mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setHasFixedSize(true);
         storiesAdapter = new StoriesAdapter(this);
+        itemLoaderService.setStoriesAdapter(storiesAdapter);
         mRecyclerView.setAdapter(storiesAdapter);
         swipeRefresh.setOnRefreshListener(this);
         storiesAdapter.enableLoadMore(mRecyclerView);
@@ -79,9 +80,9 @@ public class StoriesFragment extends Fragment
         super.onActivityCreated(savedInstanceState);
         Log.i("HackerNews", this + " is activity created.");
         if(lastVisibleItem > 0){
-            itemLoaderService.loadTopStories(storiesAdapter, false, lastVisibleItem);
+            itemLoaderService.loadTopStories(false, lastVisibleItem);
         } else {
-            itemLoaderService.loadTopStories(storiesAdapter, false, LIMIT);
+            itemLoaderService.loadTopStories(false, LIMIT);
         }
     }
 
@@ -95,9 +96,12 @@ public class StoriesFragment extends Fragment
     public void onResume() {
         super.onResume();
         Log.i("HackerNews", this + " is resumed.");
-        new Handler().postDelayed(()->{
-            if (firstVisibleItem != -1){
-                mLayoutManager.scrollToPositionWithOffset(firstVisibleItem, 3);
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                if (firstVisibleItem != -1){
+                    mLayoutManager.scrollToPositionWithOffset(firstVisibleItem, 3);
+                }
             }
         }, 500);
     }
@@ -125,7 +129,7 @@ public class StoriesFragment extends Fragment
     @Override
     public void onRefresh() {
         swipeRefresh.setRefreshing(false);
-        itemLoaderService.loadTopStories(storiesAdapter, true, LIMIT);
+        itemLoaderService.loadTopStories(true, LIMIT);
     }
 
     @Override
@@ -134,7 +138,7 @@ public class StoriesFragment extends Fragment
         if (itemLoaderService == null){
             storiesAdapter.setMoreLoading(false);
         } else {
-            itemLoaderService.loadMoreStories(storiesAdapter, storiesAdapter.getItemCount(), LIMIT);
+            itemLoaderService.loadMoreStories(storiesAdapter.getItemCount(), LIMIT);
         }
 
     }

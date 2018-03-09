@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.reactivex.Observable;
+import io.reactivex.annotations.NonNull;
+import io.reactivex.functions.Consumer;
+import io.reactivex.functions.Predicate;
 
 /**
  * Created by smu (Chau) on 5/3/18.
@@ -31,11 +34,14 @@ public class CachableItemLoaderService {
         return Observable.just(result);
     }
 
-    public Observable<NewsItem> getItem(Long itemId, boolean refresh) {
+    public Observable<NewsItem> getItem(long itemId, boolean refresh) {
         Observable<NewsItem> networkItem = itemLoader
                 .getItem(itemId)
-                .doOnNext(item -> {
-                    cachedItems.put(itemId, item); // Save to cache
+                .doOnNext(new Consumer<NewsItem>() {
+                    @Override
+                    public void accept(@NonNull NewsItem item) throws Exception {
+                        cachedItems.put(item.getId(), item); // Save to cache
+                    }
                 });
 
         if (refresh) {
@@ -45,7 +51,12 @@ public class CachableItemLoaderService {
         Observable<NewsItem> cachedItem = getCachedItem(itemId);
         return Observable
                 .concat(cachedItem, networkItem)
-                .filter(item -> item != NewsItem.NULL_ITEM && item.isUpdated(CACHED_TIME))
+                .filter(new Predicate<NewsItem>() {
+                    @Override
+                    public boolean test(@NonNull NewsItem item) throws Exception {
+                        return (item != NewsItem.NULL_ITEM && item.isUpdated(CACHED_TIME));
+                    }
+                })
                 .onErrorReturnItem(NewsItem.NULL_ITEM)
                 .take(1);
     }
