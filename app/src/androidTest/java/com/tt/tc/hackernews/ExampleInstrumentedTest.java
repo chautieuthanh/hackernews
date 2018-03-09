@@ -22,6 +22,7 @@ import org.junit.runner.RunWith;
 import java.util.concurrent.TimeUnit;
 
 import static android.support.test.espresso.action.ViewActions.click;
+import static android.support.test.espresso.action.ViewActions.swipeDown;
 import static android.support.test.espresso.matcher.ViewMatchers.withId;
 import static org.junit.Assert.assertEquals;
 
@@ -65,9 +66,19 @@ public class ExampleInstrumentedTest{
         Espresso.registerIdlingResources(loadingIdlingStories);
         Espresso.onView(withId(R.id.rvList))
                 .perform(RecyclerViewActions.scrollToPosition(10));
-
         Espresso.onView(withId(R.id.rvList))
                 .perform(RecyclerViewActions.scrollToPosition(2));
+        try {
+            Thread.sleep(500);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        Espresso.onView(withId(R.id.swipeRefresh)).perform(swipeDown());
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         Espresso.unregisterIdlingResources(loadingIdlingStories);
     }
 
@@ -79,11 +90,19 @@ public class ExampleInstrumentedTest{
         Espresso.onView(withId(R.id.rvList))
                 .perform(RecyclerViewActions.actionOnItemAtPosition(1, click()));
         Espresso.unregisterIdlingResources(loadingIdlingStories);
-
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         recyclerView = (RecyclerView) activityTestRule.getActivity().findViewById(R.id.rvCommentList);
         loadingIdlingComments.setRecyclerView(recyclerView, 1);
         Espresso.registerIdlingResources(loadingIdlingComments);
-
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         CommentsAdapter commentsAdapter = (CommentsAdapter) recyclerView.getAdapter();
         for (int i = 0; i < commentsAdapter.getItemCount(); i++){
             Comment comment = commentsAdapter.getItems(i);
@@ -92,6 +111,12 @@ public class ExampleInstrumentedTest{
                         .perform(RecyclerViewActions.actionOnItemAtPosition(0, click()));
                 break;
             }
+        }
+
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         Espresso.unregisterIdlingResources(loadingIdlingComments);
