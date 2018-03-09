@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>StoriesAdapter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">com.tt.tc.hackernews.adapter</a> &gt; <span class="el_source">StoriesAdapter.java</span></div><h1>StoriesAdapter.java</h1><pre class="source lang-java linenums">package com.tt.tc.hackernews.adapter;
+
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import com.tt.tc.hackernews.BR;
+import com.tt.tc.hackernews.R;
+import com.tt.tc.hackernews.model.NewsItem;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by smu (Chau) on 7/3/18.
+ */
+
+public class StoriesAdapter extends RecyclerView.Adapter&lt;StoriesAdapter.ItemViewHolder&gt; {
+    private boolean isMoreLoading;
+<span class="fc" id="L25">    private int visibleThreshold = 1;</span>
+    private List&lt;NewsItem&gt; items;
+    private TopStoriesListener listener;
+
+<span class="fc" id="L29">    public StoriesAdapter(TopStoriesListener topStoriesListener) {</span>
+<span class="fc" id="L30">        items = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L31">        this.listener = topStoriesListener;</span>
+<span class="fc" id="L32">    }</span>
+
+    public NewsItem getItems(int position) {
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">        return position &lt; getItemCount() ? items.get(position) : null;</span>
+    }
+
+    public void clearData() {
+<span class="fc" id="L39">        items.clear();</span>
+<span class="fc" id="L40">        notifyDataSetChanged();</span>
+<span class="fc" id="L41">    }</span>
+
+    public void addItemMore(int index, NewsItem newsItem) {
+<span class="fc" id="L44">        newsItem.setListIndex(index + 1);</span>
+<span class="pc bpc" id="L45" title="1 of 2 branches missed.">        if(index &gt;= getItemCount()){</span>
+<span class="fc" id="L46">            items.add(newsItem);</span>
+<span class="fc" id="L47">            notifyDataSetChanged();</span>
+        } else {
+<span class="nc" id="L49">            items.add(index, newsItem);</span>
+<span class="nc" id="L50">            notifyItemInserted(getItemCount() -1);</span>
+        }
+<span class="fc" id="L52">    }</span>
+
+    public void setMoreLoading(boolean isMoreLoading) {
+<span class="fc" id="L55">        this.isMoreLoading = isMoreLoading;</span>
+<span class="fc" id="L56">    }</span>
+
+    public void enableLoadMore(RecyclerView recyclerView) {
+<span class="fc" id="L59">        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {</span>
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+<span class="fc" id="L62">                super.onScrolled(recyclerView, dx, dy);</span>
+<span class="fc" id="L63">                int visibleItemCount = recyclerView.getChildCount();</span>
+<span class="fc" id="L64">                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();</span>
+<span class="fc" id="L65">                int totalItemCount = layoutManager.getItemCount();</span>
+<span class="fc" id="L66">                int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();</span>
+<span class="fc bfc" id="L67" title="All 4 branches covered.">                if (!isMoreLoading &amp;&amp; (totalItemCount - visibleItemCount) &lt;= (firstVisibleItem + visibleThreshold)) {</span>
+<span class="fc" id="L68">                    isMoreLoading = true;</span>
+<span class="fc" id="L69">                    listener.onLoadMore();</span>
+                }
+<span class="fc" id="L71">            }</span>
+        });
+<span class="fc" id="L73">    }</span>
+
+    @Override
+    public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+<span class="fc" id="L77">        ViewDataBinding viewDataBinding = DataBindingUtil.inflate(LayoutInflater.from(parent.getContext())</span>
+                , R.layout.story_item, parent, false);
+<span class="fc" id="L79">        return new ItemViewHolder(viewDataBinding);</span>
+    }
+
+    @Override
+    public void onBindViewHolder(ItemViewHolder holder, int position) {
+<span class="fc" id="L84">        holder.bind(getItems(position));</span>
+<span class="fc" id="L85">    }</span>
+
+    @Override
+    public int getItemCount() {
+<span class="fc" id="L89">        return items.size();</span>
+    }
+
+    public class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private ViewDataBinding binding;
+        private NewsItem item;
+
+<span class="fc" id="L96">        public ItemViewHolder(ViewDataBinding binding) {</span>
+<span class="fc" id="L97">            super(binding.getRoot());</span>
+<span class="fc" id="L98">            this.binding = binding;</span>
+<span class="fc" id="L99">            View view = binding.getRoot();</span>
+<span class="fc" id="L100">            view.setOnClickListener(this);</span>
+<span class="fc" id="L101">            view.findViewById(R.id.comment_tv).setOnClickListener(this);</span>
+
+<span class="fc" id="L103">        }</span>
+
+        public void bind(NewsItem newsItem) {
+<span class="fc" id="L106">            binding.setVariable(BR.item,newsItem);</span>
+<span class="fc" id="L107">            binding.executePendingBindings();</span>
+<span class="fc" id="L108">            this.item = newsItem;</span>
+<span class="fc" id="L109">        }</span>
+
+        @Override
+        public void onClick(View view) {
+<span class="fc" id="L113">            listener.onItemClick(item);</span>
+<span class="fc" id="L114">        }</span>
+    }
+
+    public interface TopStoriesListener {
+        void onLoadMore();
+        void onItemClick(NewsItem item);
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.3</div></body></html>

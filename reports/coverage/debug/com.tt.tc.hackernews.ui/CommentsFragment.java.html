@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CommentsFragment.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">com.tt.tc.hackernews.ui</a> &gt; <span class="el_source">CommentsFragment.java</span></div><h1>CommentsFragment.java</h1><pre class="source lang-java linenums">package com.tt.tc.hackernews.ui;
+
+import android.content.Context;
+import android.os.Bundle;
+import android.os.Handler;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import com.tt.tc.hackernews.Flow;
+import com.tt.tc.hackernews.R;
+import com.tt.tc.hackernews.adapter.CommentsAdapter;
+import com.tt.tc.hackernews.model.Comment;
+import com.tt.tc.hackernews.service.CommentLoaderService;
+
+public class CommentsFragment extends Fragment implements
+        SwipeRefreshLayout.OnRefreshListener, CommentsAdapter.CommentListener {
+    public static final String TAG = &quot;CommentsFragment&quot;;
+    private static final int LIMIT = 10;
+    private int firstVisibleItem;
+    private int lastVisibleItem;
+    private CommentLoaderService commentLoaderService;
+    private CommentsAdapter commentsAdapter;
+    private SwipeRefreshLayout swipeRefresh;
+    private LinearLayoutManager mLayoutManager;
+    private Flow flow;
+
+<span class="fc" id="L34">    public CommentsFragment() {</span>
+
+<span class="fc" id="L36">    }</span>
+
+    public static CommentsFragment newInstance(long id){
+<span class="fc" id="L39">        CommentsFragment commentsFragment = new CommentsFragment();</span>
+<span class="fc" id="L40">        commentsFragment.commentLoaderService = new CommentLoaderService(id);</span>
+<span class="fc" id="L41">        return commentsFragment;</span>
+    }
+
+    @Override
+    public void onAttach(Context context) {
+<span class="fc" id="L46">        super.onAttach(context);</span>
+<span class="fc" id="L47">        Log.i(&quot;HackerNews&quot;, this + &quot;is attached.&quot;);</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">        if (context instanceof Flow){</span>
+<span class="fc" id="L49">            flow = (Flow) context;</span>
+        }
+<span class="fc" id="L51">    }</span>
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+<span class="fc" id="L55">        super.onCreate(savedInstanceState);</span>
+<span class="fc" id="L56">        setRetainInstance(true);</span>
+<span class="fc" id="L57">        Log.i(&quot;HackerNews&quot;, this + &quot;is created.&quot;);</span>
+<span class="fc" id="L58">    }</span>
+
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+<span class="fc" id="L63">        Log.i(&quot;HackerNews&quot;, this + &quot; is view created.&quot;);</span>
+<span class="fc" id="L64">        View view = inflater.inflate(R.layout.fragment_comments, container, false);</span>
+<span class="fc" id="L65">        swipeRefresh= (SwipeRefreshLayout)view.findViewById(R.id.swipeRefresh);</span>
+<span class="fc" id="L66">        RecyclerView mRecyclerView = (RecyclerView) view.findViewById(R.id.rvCommentList);</span>
+<span class="fc" id="L67">        mLayoutManager = new LinearLayoutManager(container.getContext());</span>
+<span class="fc" id="L68">        mRecyclerView.setLayoutManager(mLayoutManager);</span>
+<span class="fc" id="L69">        mRecyclerView.setHasFixedSize(true);</span>
+<span class="fc" id="L70">        commentsAdapter = new CommentsAdapter(this);</span>
+<span class="fc" id="L71">        commentLoaderService.setCommentsAdapter(commentsAdapter);</span>
+<span class="fc" id="L72">        mRecyclerView.setAdapter(commentsAdapter);</span>
+<span class="fc" id="L73">        swipeRefresh.setOnRefreshListener(this);</span>
+<span class="fc" id="L74">        commentsAdapter.enableLoadMore(mRecyclerView);</span>
+<span class="fc" id="L75">        return view;</span>
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+<span class="fc" id="L80">        super.onActivityCreated(savedInstanceState);</span>
+<span class="fc" id="L81">        Log.i(&quot;HackerNews&quot;, this + &quot; is activity created.&quot;);</span>
+<span class="fc" id="L82">    }</span>
+
+    @Override
+    public void onStart() {
+<span class="fc" id="L86">        super.onStart();</span>
+<span class="fc" id="L87">        Log.i(&quot;HackerNews&quot;, this + &quot; is started.&quot;);</span>
+<span class="pc bpc" id="L88" title="1 of 2 branches missed.">        if(lastVisibleItem &gt; 0){</span>
+<span class="nc" id="L89">            commentLoaderService.loadComments(false, lastVisibleItem);</span>
+        } else {
+<span class="fc" id="L91">            commentLoaderService.loadComments(false, LIMIT);</span>
+        }
+<span class="fc" id="L93">    }</span>
+
+    @Override
+    public void onResume() {
+<span class="fc" id="L97">        super.onResume();</span>
+<span class="fc" id="L98">        Log.i(&quot;HackerNews&quot;, this + &quot; is resumed.&quot;);</span>
+<span class="fc" id="L99">        new Handler().postDelayed(new Runnable() {</span>
+            @Override
+            public void run() {
+<span class="pc bpc" id="L102" title="1 of 2 branches missed.">                if (firstVisibleItem != -1){</span>
+<span class="fc" id="L103">                    mLayoutManager.scrollToPositionWithOffset(firstVisibleItem, 2);</span>
+                }
+<span class="fc" id="L105">            }</span>
+        }, 500);
+<span class="fc" id="L107">    }</span>
+
+    @Override
+    public void onPause() {
+<span class="fc" id="L111">        super.onPause();</span>
+<span class="fc" id="L112">        Log.i(&quot;HackerNews&quot;, this + &quot; is paused.&quot;);</span>
+<span class="fc" id="L113">        firstVisibleItem = mLayoutManager.findFirstCompletelyVisibleItemPosition();</span>
+<span class="fc" id="L114">        lastVisibleItem = mLayoutManager.findLastCompletelyVisibleItemPosition();</span>
+<span class="fc" id="L115">    }</span>
+
+    @Override
+    public void onStop() {
+<span class="nc" id="L119">        super.onStop();</span>
+<span class="nc" id="L120">        Log.i(&quot;HackerNews&quot;, this + &quot; is stopped.&quot;);</span>
+<span class="nc" id="L121">        commentLoaderService.stop();</span>
+<span class="nc" id="L122">    }</span>
+
+    @Override
+    public void onDetach() {
+<span class="nc" id="L126">        super.onDetach();</span>
+<span class="nc" id="L127">        Log.i(&quot;HackerNews&quot;, this + &quot; is detached.&quot;);</span>
+<span class="nc" id="L128">    }</span>
+    @Override
+    public void onRefresh() {
+<span class="nc" id="L131">        swipeRefresh.setRefreshing(false);</span>
+<span class="nc" id="L132">        commentLoaderService.loadComments(true, LIMIT);</span>
+<span class="nc" id="L133">    }</span>
+
+    @Override
+    public void onLoadMore() {
+<span class="fc" id="L137">        Log.i(&quot;HackerNews&quot;, &quot;offset = &quot; + commentsAdapter.getItemCount());</span>
+<span class="pc bpc" id="L138" title="1 of 2 branches missed.">        if (commentLoaderService == null){</span>
+<span class="nc" id="L139">            commentsAdapter.setMoreLoading(false);</span>
+        } else {
+<span class="fc" id="L141">            commentLoaderService.loadMoreComment(commentsAdapter.getItemCount(), LIMIT);</span>
+        }
+<span class="fc" id="L143">    }</span>
+
+    @Override
+    public void onShowReplyClick(Comment item) {
+<span class="pc bpc" id="L147" title="2 of 4 branches missed.">        if (item.getChilds() != null &amp;&amp; item.getChilds().size() &gt; 0){</span>
+<span class="fc" id="L148">            flow.goTo(true, CommentsFragment.newInstance(item.getId()), CommentsFragment.TAG + item.getId());</span>
+        }
+<span class="fc" id="L150">    }</span>
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.3</div></body></html>

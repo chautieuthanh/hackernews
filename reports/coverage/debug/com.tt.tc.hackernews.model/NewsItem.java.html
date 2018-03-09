@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>NewsItem.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">com.tt.tc.hackernews.model</a> &gt; <span class="el_source">NewsItem.java</span></div><h1>NewsItem.java</h1><pre class="source lang-java linenums">package com.tt.tc.hackernews.model;
+
+import android.text.format.DateUtils;
+
+import java.util.List;
+
+/**
+ * Created by smu (Chau) on 3/3/18.
+ */
+
+public class NewsItem {
+<span class="fc" id="L12">    public static final NewsItem NULL_ITEM = new NewsItem();</span>
+    private int listIndex;
+    private String by;
+    private String title;
+    private int descendants;
+    private long id;
+    private List&lt;Long&gt; kids;
+    private int score;
+    private long time;
+    private String type;
+    private String url;
+
+    private String byStr;
+    private String scoreStr;
+    private String shortUrl;
+    private String commentStr;
+    private String listIndexStr;
+    private long loadedTime;
+
+<span class="fc" id="L31">    public NewsItem() {</span>
+<span class="fc" id="L32">        loadedTime = System.currentTimeMillis();</span>
+<span class="fc" id="L33">    }</span>
+
+    public int getListIndex() {
+<span class="fc" id="L36">        return listIndex;</span>
+    }
+
+    public void setListIndex(int listIndex) {
+<span class="fc" id="L40">        this.listIndex = listIndex;</span>
+<span class="fc" id="L41">    }</span>
+
+    public void setBy(String by) {
+<span class="nc" id="L44">        this.by = by;</span>
+<span class="nc" id="L45">    }</span>
+
+    public void setTitle(String title) {
+<span class="nc" id="L48">        this.title = title;</span>
+<span class="nc" id="L49">    }</span>
+
+    public void setDescendants(int descendants) {
+<span class="nc" id="L52">        this.descendants = descendants;</span>
+<span class="nc" id="L53">    }</span>
+
+    public void setId(long id) {
+<span class="nc" id="L56">        this.id = id;</span>
+<span class="nc" id="L57">    }</span>
+
+    public long getId() {
+<span class="fc" id="L60">        return id;</span>
+    }
+
+    public void setKids(List&lt;Long&gt; kids) {
+<span class="nc" id="L64">        this.kids = kids;</span>
+<span class="nc" id="L65">    }</span>
+
+    public List&lt;Long&gt; getKids() {
+<span class="fc" id="L68">        return kids;</span>
+    }
+
+    public void setScore(int score) {
+<span class="nc" id="L72">        this.score = score;</span>
+<span class="nc" id="L73">    }</span>
+
+    public void setTime(long time) {
+<span class="nc" id="L76">        this.time = time;</span>
+<span class="nc" id="L77">    }</span>
+
+    public void setType(String type) {
+<span class="nc" id="L80">        this.type = type;</span>
+<span class="nc" id="L81">    }</span>
+
+    public void setUrl(String url) {
+<span class="nc" id="L84">        this.url = url;</span>
+
+<span class="nc" id="L86">    }</span>
+
+    public String getByStr() {
+<span class="pc bpc" id="L89" title="1 of 4 branches missed.">        if (byStr == null &amp;&amp; by != null){</span>
+<span class="fc" id="L90">            this.byStr = &quot;By &quot; + by + &quot; &quot;;</span>
+        }
+<span class="fc" id="L92">        return byStr;</span>
+    }
+
+    public String getScoreStr() {
+<span class="fc bfc" id="L96" title="All 2 branches covered.">        if (scoreStr == null){</span>
+<span class="fc bfc" id="L97" title="All 2 branches covered.">            scoreStr = score &lt; 2 ? score + &quot; point &quot; : score + &quot; Points &quot;;</span>
+        }
+<span class="fc" id="L99">        return scoreStr;</span>
+    }
+
+    public String getShortUrl() {
+<span class="pc bpc" id="L103" title="1 of 4 branches missed.">        if (shortUrl == null &amp;&amp; url != null){</span>
+<span class="fc" id="L104">            int dotIndex = url.indexOf(&quot;.&quot;);</span>
+<span class="fc" id="L105">            int endIndex = url.indexOf(&quot;/&quot;, dotIndex);</span>
+<span class="pc bpc" id="L106" title="1 of 2 branches missed.">            if (endIndex &lt; 0){</span>
+<span class="nc" id="L107">                shortUrl = url;</span>
+            } else {
+<span class="fc" id="L109">                shortUrl = url.substring(0, endIndex);</span>
+            }
+
+        }
+<span class="fc" id="L113">        return shortUrl;</span>
+    }
+
+    public CharSequence getTimeStr() {
+<span class="fc" id="L117">        return DateUtils.getRelativeTimeSpanString(time * 1000, System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS);</span>
+    }
+
+    public String getCommentStr() {
+<span class="fc bfc" id="L121" title="All 2 branches covered.">        if (commentStr == null){</span>
+            int no;
+<span class="fc bfc" id="L123" title="All 2 branches covered.">            if (kids != null){</span>
+<span class="fc" id="L124">                no = kids.size();</span>
+            } else{
+<span class="fc" id="L126">                no = 0;</span>
+            }
+<span class="fc bfc" id="L128" title="All 2 branches covered.">            commentStr = no &lt; 2 ? no + &quot; comment &quot; : no + &quot; comments &quot;;</span>
+        }
+<span class="fc" id="L130">        return commentStr;</span>
+    }
+
+    public String getListIndexStr(){
+<span class="fc bfc" id="L134" title="All 2 branches covered.">        if (listIndexStr == null){</span>
+<span class="fc" id="L135">            listIndexStr = listIndex + &quot;. &quot;;</span>
+        }
+<span class="fc" id="L137">        return listIndexStr;</span>
+    }
+
+    public String getTitle() {
+<span class="fc" id="L141">        return title;</span>
+    }
+
+    public boolean isUpdated(long cachedInterval) {
+<span class="pc bpc" id="L145" title="1 of 2 branches missed.">        return System.currentTimeMillis() - loadedTime &lt;= cachedInterval;</span>
+    }
+
+    @Override
+    public String toString() {
+<span class="fc" id="L150">        return String.format(&quot;NewsItem{title=%s, kids=%s}&quot;, title, kids);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.3</div></body></html>

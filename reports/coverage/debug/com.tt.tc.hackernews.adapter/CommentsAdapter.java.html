@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../.resources/report.css" type="text/css"/><link rel="shortcut icon" href="../.resources/report.gif" type="image/gif"/><title>CommentsAdapter.java</title><link rel="stylesheet" href="../.resources/prettify.css" type="text/css"/><script type="text/javascript" src="../.resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=0;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../.sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">debugAndroidTest</a> &gt; <a href="index.source.html" class="el_package">com.tt.tc.hackernews.adapter</a> &gt; <span class="el_source">CommentsAdapter.java</span></div><h1>CommentsAdapter.java</h1><pre class="source lang-java linenums">package com.tt.tc.hackernews.adapter;
+
+import android.databinding.DataBindingUtil;
+import android.databinding.ViewDataBinding;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+
+import com.tt.tc.hackernews.BR;
+import com.tt.tc.hackernews.R;
+import com.tt.tc.hackernews.model.Comment;
+
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * Created by smu (Chau) on 6/3/18.
+ */
+
+public class CommentsAdapter extends RecyclerView.Adapter&lt;CommentsAdapter.ItemViewHolder&gt; {
+    private boolean isMoreLoading;
+<span class="fc" id="L25">    private int visibleThreshold = 1;</span>
+    private List&lt;Comment&gt; comments;
+    private CommentListener listener;
+
+<span class="fc" id="L29">    public CommentsAdapter(CommentListener commentListener) {</span>
+<span class="fc" id="L30">        comments = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L31">        this.listener = commentListener;</span>
+<span class="fc" id="L32">    }</span>
+
+    public Comment getItems(int position) {
+<span class="pc bpc" id="L35" title="1 of 2 branches missed.">        return position &lt; getItemCount() ? comments.get(position) : null;</span>
+    }
+
+    public void clearData() {
+<span class="fc" id="L39">        comments.clear();</span>
+<span class="fc" id="L40">        notifyDataSetChanged();</span>
+<span class="fc" id="L41">    }</span>
+
+    public void addItemMore(Comment newsItem) {
+<span class="fc" id="L44">        comments.add(newsItem);</span>
+<span class="fc" id="L45">        notifyItemInserted(comments.size() - 1);</span>
+<span class="fc" id="L46">    }</span>
+
+    public void setMoreLoading(boolean isMoreLoading) {
+<span class="fc" id="L49">        this.isMoreLoading = isMoreLoading;</span>
+<span class="fc" id="L50">    }</span>
+
+    public void enableLoadMore(RecyclerView recyclerView) {
+<span class="fc" id="L53">        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {</span>
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+<span class="fc" id="L56">                super.onScrolled(recyclerView, dx, dy);</span>
+<span class="fc" id="L57">                int visibleItemCount = recyclerView.getChildCount();</span>
+<span class="fc" id="L58">                LinearLayoutManager layoutManager = (LinearLayoutManager) recyclerView.getLayoutManager();</span>
+<span class="fc" id="L59">                int totalItemCount = layoutManager.getItemCount();</span>
+<span class="fc" id="L60">                int firstVisibleItem = layoutManager.findFirstVisibleItemPosition();</span>
+<span class="pc bpc" id="L61" title="1 of 4 branches missed.">                if (!isMoreLoading &amp;&amp; (totalItemCount - visibleItemCount) &lt;= (firstVisibleItem + visibleThreshold)) {</span>
+<span class="fc" id="L62">                    isMoreLoading = true;</span>
+<span class="fc" id="L63">                    listener.onLoadMore();</span>
+                }
+<span class="fc" id="L65">            }</span>
+        });
+<span class="fc" id="L67">    }</span>
+
+    @Override
+    public ItemViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+<span class="fc" id="L71">        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());</span>
+<span class="fc" id="L72">        ViewDataBinding binding = DataBindingUtil.inflate(layoutInflater, R.layout.comment, parent, false);</span>
+<span class="fc" id="L73">        return new ItemViewHolder(binding);</span>
+    }
+
+    @Override
+    public void onBindViewHolder(ItemViewHolder holder, int position) {
+<span class="fc" id="L78">        holder.bind(getItems(position));</span>
+<span class="fc" id="L79">    }</span>
+
+    @Override
+    public int getItemCount() {
+<span class="fc" id="L83">        return comments.size();</span>
+    }
+
+    public class ItemViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
+        private final ViewDataBinding binding;
+        private Comment item;
+
+<span class="fc" id="L90">        public ItemViewHolder(ViewDataBinding binding) {</span>
+<span class="fc" id="L91">            super(binding.getRoot());</span>
+<span class="fc" id="L92">            this.binding = binding;</span>
+<span class="fc" id="L93">            View view = binding.getRoot();</span>
+<span class="fc" id="L94">            view.setOnClickListener(this);</span>
+<span class="fc" id="L95">            view.findViewById(R.id.no_reply_tv).setOnClickListener(this);</span>
+<span class="fc" id="L96">        }</span>
+
+        public void bind(Comment comment) {
+<span class="fc" id="L99">            binding.setVariable(BR.comment, comment);</span>
+<span class="fc" id="L100">            binding.executePendingBindings();</span>
+<span class="fc" id="L101">            this.item = comment;</span>
+<span class="fc" id="L102">        }</span>
+
+        @Override
+        public void onClick(View view) {
+<span class="fc" id="L106">            listener.onShowReplyClick(item);</span>
+<span class="fc" id="L107">        }</span>
+    }
+
+    public interface CommentListener {
+        void onLoadMore();
+        void onShowReplyClick(Comment item);
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.eclemma.org/jacoco">JaCoCo</a> 0.7.5.201505241946</span>Generated by the Android Gradle plugin 2.3.3</div></body></html>
