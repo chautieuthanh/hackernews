@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:card_view="http://schemas.android.com/apk/res-auto">
+    <data>
+        <import type="android.text.Html"/>
+        <variable name="comment" type="com.tt.tc.hackernews.model.Comment"/>
+    </data>
+    <android.support.v7.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/normal_padding"
+        android:background="@color/background_color_item"
+        card_view:cardCornerRadius="4dp">
+        <RelativeLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="@dimen/normal_padding">
+            <TextView
+                android:id="@+id/by_tv"
+                android:padding="@dimen/small_small_padding"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_color"
+                android:textSize="@dimen/font_size_normal"
+                android:lines="1"
+                android:maxLength="20"
+                android:text="@{comment.by}"
+                />
+            <TextView
+                android:id="@+id/time_tv"
+                android:layout_toRightOf="@id/by_tv"
+                android:padding="@dimen/small_small_padding"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/text_color"
+                android:textSize="@dimen/font_size_normal"
+                android:lines="1"
+                android:text="@{comment.timeStr}"
+                />
+            <TextView
+                android:id="@+id/text_tv"
+                android:layout_below="@id/time_tv"
+                android:padding="@dimen/small_small_padding"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/title_color"
+                android:textSize="@dimen/font_size_normal"
+                android:autoLink="web"
+                android:text="@{Html.fromHtml(comment.text)}"
+                />
+            <TextView
+                android:id="@+id/no_reply_tv"
+                android:layout_below="@id/text_tv"
+                android:layout_alignParentRight="true"
+                android:padding="@dimen/small_small_padding"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/btn_text_color"
+                android:textSize="@dimen/font_size_normal"
+                android:lines="1"
+                android:clickable="true"
+                android:text="@{comment.replyStr}"
+                />
+
+        </RelativeLayout>
+    </android.support.v7.widget.CardView>
+
+</layout>
